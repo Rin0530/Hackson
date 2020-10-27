@@ -10,7 +10,7 @@ TOKEN = TOKEN.TOKEN
 client = discord.Client()
 
 
-imageList = subprocess.check_output("ls /home/onochan/hackason/images/",shell=True).decode().replace("/", " ").split()
+imageList = subprocess.check_output("ls ~/hackason/images/",shell=True).decode().replace("/", " ").split()
 numOfImages = len(imageList)-1
 
 # メッセージ受信時に動作する処理
@@ -25,7 +25,7 @@ async def on_message(message):
         await message.channel.send(file = discord.File(imageList[radomInt]))
     #elif [client in message.mentions]:
     #    subprocess.run("wget "+message.jump_url, shell= True)
-    #    subprocess.run("cp *.png *.jpeg images", shell=True)
+    #    subprocess.run("cp *.png *.jpeg images/", shell=True)
 
 # 起動時に動作する処理
 @client.event
