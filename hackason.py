@@ -1,4 +1,4 @@
-import discoed
+import discord
 import TOKEN
 
 TOKEN = TOKEN.TOKEN
