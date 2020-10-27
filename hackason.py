@@ -1,6 +1,7 @@
 import discoed
+import TOKEN
 
-TOKEN = "TOKEN"
+TOKEN = TOKEN.TOKEN
 
 # 接続に必要なオブジェクトを生成
 client = discord.Client()
