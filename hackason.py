@@ -22,7 +22,7 @@ async def on_message(message):
 
     elif message.content == "animal":
         radomInt = random.randint(0,numOfImages)
-        await message.channel.send(file = discord.File(imageList[radomInt]))
+        await message.channel.send(file = discord.File("images/"+imageList[radomInt]))
     #elif [client in message.mentions]:
     #    subprocess.run("wget "+message.jump_url, shell= True)
     #    subprocess.run("cp *.png *.jpeg images/", shell=True)
