@@ -5,6 +5,8 @@ import TOKEN
 import random
 import subprocess
 import os
+import pathlib
+import shutil
 
 TOKEN = TOKEN.TOKEN
 
@@ -55,18 +57,30 @@ async def on_message(message):
         except IndexError as identifier:
             await channel.send("画像をアップロードしてください")
 
-    #if message.content.startswith("/move"):
-    #    messageList = message.content.split()
-    #    if len(messageList) <= 2:
-    #        await channel.send("/move 移動させたいファイルのファイル名 移動先")
+    if message.content.startswith("/move"):
+        messageList = message.content.split()
+        if len(messageList) <= 2:
+            await channel.send("/move 移動させたいファイルのファイル名 移動先")
 
-        # 移動先がない場合
-    #    if not os.path.isdir(messageList[2]):
-    #        subprocess.run("mkdir images/"+messageList[2],shell=True)
+        # 移動させたいファイル、移動先ディレクトリの各Pathオブジェクトを取得
+        imagesPath = pathlib.Path("images")
+        filePaths =imagesPath.glob("**/*"+messageList[1])
+        filePath = list(filePaths)[0]
+        dirPath = "images/"+messageList[2]
 
-        # 移動させたいファイルがない場合
-    #    if not os.path.isfile(messageList[1]):
-    #        await channel.send("指定したファイルは存在しません")
+       # 移動先がない場合
+        if not os.path.isdir(dirPath):
+            #subprocess.run("mkdir images/"+messageList[2],shell=True)
+            os.makedirs("images/"+messageList[2],exist_ok=True)
+
+       # 移動させたいファイルがない場合
+        if not filePath.exists():
+            await channel.send("指定したファイルは存在しません")
+            return
+
+        # 移動
+        shutil.move(str(filePath), dirPath)
+
 
     #elif [client in message.mentions]:
     #    subprocess.run("wget "+message.jump_url, shell= True)
