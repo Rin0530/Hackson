@@ -17,6 +17,15 @@ client = discord.Client()
 #imageList = subprocess.check_output("ls ~/hackason/images/",shell=True).decode().replace("/", " ").split()
 #numOfImages = len(imageList)-1
 
+# 後のファイル名を決定
+def decide_filename(category, extension):
+    imageList = subprocess.check_output(
+        "ls ./images/" + category, shell=True).decode().replace("/", " ").split()
+    num = len(imageList)
+    after_path = "images/"+category+"/" + \
+        category+"_"+str(num)+extension
+    return after_path
+
 # メッセージ受信時に動作する処理
 @client.event
 async def on_message(message):
@@ -51,7 +60,11 @@ async def on_message(message):
                 messageList.append("")
             if not os.path.isdir(messageList[1]):
                 subprocess.run("mkdir images/"+messageList[1],shell=True)
-            subprocess.run("mv "+attachment.filename+" images/"+messageList[1], shell=True)
+            # subprocess.run("mv "+attachment.filename+" images/"+messageList[1], shell=True)
+            #拡張子を取得
+            extension = os.path.splitext(attachment.filename)
+            #画像をカテゴリのフォルダ下に移動
+            shutil.move(attachment.filename,decide_filename(messageList[1],extension[1]))
             await channel.send(attachment.filename+"を保存しました")
 
         except IndexError as identifier:
