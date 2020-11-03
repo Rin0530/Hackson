@@ -96,6 +96,7 @@ async def on_message(message):
     
     if message.content.startswith("list"):
         messageList = message.content.split()
+        # カテゴリ指定のない場合
         if len(messageList) == 1:
             default_imageList = subprocess.check_output(
                 "ls ./images", shell=True).decode().replace("/", " ").split()
@@ -103,14 +104,15 @@ async def on_message(message):
                 await channel.send(tmp)
             return
 
-            category = messageList[1]
-            if not os.path.isdir("./images/"+category):
-                await channel.send("カテゴリないよ？")
-                return
-            imageList = subprocess.check_output(
-                "ls ./images/"+category, shell=True).decode().replace("/", " ").split()
-            for tmp in imageList:
-                await channel.send(tmp)
+        #カテゴリ指定あり
+        category = messageList[1]
+        if not os.path.isdir("./images/"+category):
+            await channel.send("カテゴリないよ？")
+            return
+        imageList = subprocess.check_output(
+            "ls ./images/"+category, shell=True).decode().replace("/", " ").split()
+        for tmp in imageList:
+            await channel.send(tmp)
 
     #elif [client in message.mentions]:
     #    subprocess.run("wget "+message.jump_url, shell= True)
