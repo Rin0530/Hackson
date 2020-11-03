@@ -21,6 +21,8 @@ images = "images"
 
 # 後のファイル名を決定
 def decide_filename(category, extension):
+    print("変数images:" + images)
+    print("変数category:"+category)
     imageList = subprocess.check_output(
         "ls ./"+images+"/" + category, shell=True).decode().replace("/", " ").split()
     num = len(imageList)
@@ -106,8 +108,11 @@ async def on_message(message):
             return
 
         # 移動
-        try:
-            shutil.move(str(filePath), dirPath)
+        try:  
+            extension = os.path.splitext(messageList[1])
+            aftername = os.path.splitext(os.path.basename(str(filePath)))[0]  #抜けたファイル名
+            shutil.move(str(filePath), decide_filename(messageList[2], extension[1]))
+            
         except shutil.Error as identifier:
             await channel.send("移動先と現在ファイルが存在するディレクトリが同一です。")
         
