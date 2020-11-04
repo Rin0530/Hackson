@@ -1,3 +1,4 @@
+from os import rename
 import discord
 from discord import channel
 import TOKEN
@@ -49,7 +50,8 @@ async def on_message(message):
         
         messageList = message.content.split()
         if len(messageList) == 1:
-            messageList.append("")
+            await channel.send("カテゴリを指定してください")
+            return
         imageList = subprocess.check_output("ls "+images+"/"+messageList[1],shell=True).decode().replace("/", " ").split()
 
         numOfImages = len(imageList)-1
@@ -74,14 +76,18 @@ async def on_message(message):
             #拡張子を取得
             extension = os.path.splitext(attachment.filename)
             #画像をカテゴリのフォルダ下に移動
-            shutil.move(attachment.filename,decide_filename(messageList[1],extension[1]))
-            await channel.send(attachment.filename+"を保存しました")
+            aftername =decide_filename(messageList[1],extension[1])
+            shutil.move(attachment.filename, aftername)
+            await channel.send(aftername.rsplit("/",1)[1]+"を保存しました")
 
         except IndexError as identifier:
             await channel.send("画像をアップロードしてください")
 
     if message.content.startswith("/move"):
         messageList = message.content.split()
+        if messageList[2].startswith(".") or messageList[2].startswith("~"):
+            await channel.send("移動先にはカテゴリ名を指定してください")
+            return
         if len(messageList) <= 2:
             await channel.send("/move 移動させたいファイルのファイル名 移動先")
 
@@ -108,17 +114,30 @@ async def on_message(message):
             return
 
         # 移動
-        try:  
+
+        try:
             extension = os.path.splitext(messageList[1])
-            aftername = os.path.splitext(os.path.basename(str(filePath)))[0]  #抜けたファイル名
+            aftername = str(filePath).rsplit("/") #抜けたファイル名
             shutil.move(str(filePath), decide_filename(messageList[2], extension[1]))
-            
+            files = os.listdir(images+"/"+aftername[2])
+            file = None
+            for f in files:
+                if str(len(files)) in str(f):
+                    file = f
+                    break
+            print(str(file))
+            os.rename(images+"/"+aftername[2]+"/"+file, images+"/"+aftername[2]+"/"+aftername[3])
+
+
         except shutil.Error as identifier:
             await channel.send("移動先と現在ファイルが存在するディレクトリが同一です。")
-        
-    
+
     if message.content.startswith("list"):
         messageList = message.content.split()
+        if len(messageList) != 1:
+            if messageList[1].startswith(".") or messageList[1].startswith("~"):
+                await channel.send("閲覧先にはカテゴリ名を指定してください")
+                return
         # カテゴリ指定のない場合
         if len(messageList) == 1:
             default_imageList = subprocess.check_output(
