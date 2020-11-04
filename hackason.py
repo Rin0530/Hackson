@@ -24,8 +24,7 @@ images = "images"
 def decide_filename(category, extension):
     print("変数images:" + images)
     print("変数category:"+category)
-    imageList = subprocess.check_output(
-        "ls ./"+images+"/" + category, shell=True).decode().replace("/", " ").split()
+    imageList = os.listdir(images+"/" + category)
     num = len(imageList)
     after_path = images+"/"+category+"/" + \
         category+"_"+str(num)+extension
@@ -52,7 +51,7 @@ async def on_message(message):
         if len(messageList) == 1:
             await channel.send("カテゴリを指定してください")
             return
-        imageList = subprocess.check_output("ls "+images+"/"+messageList[1],shell=True).decode().replace("/", " ").split()
+        imageList = os.listdir(images+"/"+messageList[1])
 
         numOfImages = len(imageList)-1
         radomInt = random.randint(0,numOfImages)
@@ -140,8 +139,7 @@ async def on_message(message):
                 return
         # カテゴリ指定のない場合
         if len(messageList) == 1:
-            default_imageList = subprocess.check_output(
-                "ls ./"+images, shell=True).decode().replace("/", " ").split()
+            default_imageList = os.listdir(images)
             for tmp in default_imageList:
                 await channel.send(tmp)
             return
@@ -154,8 +152,7 @@ async def on_message(message):
         if not os.path.isdir("./"+images+"/"+category):
             await channel.send("カテゴリないよ？")
             return
-        imageList = subprocess.check_output(
-            "ls ./"+images+"/"+category, shell=True).decode().replace("/", " ").split()
+        imageList = os.listdir(images+"/"+category)
         for tmp in imageList:
             images = "images"
             images += "/"+str(message.author.id)
