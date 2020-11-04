@@ -114,6 +114,7 @@ async def on_message(message):
             return
 
         # 移動
+
         try:
             extension = os.path.splitext(messageList[1])
             aftername = str(filePath).rsplit("/") #抜けたファイル名
@@ -126,6 +127,7 @@ async def on_message(message):
                     break
             print(str(file))
             os.rename(images+"/"+aftername[2]+"/"+file, images+"/"+aftername[2]+"/"+aftername[3])
+
 
         except shutil.Error as identifier:
             await channel.send("移動先と現在ファイルが存在するディレクトリが同一です。")
@@ -145,15 +147,21 @@ async def on_message(message):
             return
 
         #カテゴリ指定あり
-        category = messageList[1]
+        category = messageList[1]       
+        if "." in category or "/" in category:
+            await channel.send("カテゴリのみをにゅうりょくしてください")
+            return
         if not os.path.isdir("./"+images+"/"+category):
             await channel.send("カテゴリないよ？")
             return
         imageList = subprocess.check_output(
             "ls ./"+images+"/"+category, shell=True).decode().replace("/", " ").split()
         for tmp in imageList:
-            await channel.send(tmp)
-
+            images = "images"
+            images += "/"+str(message.author.id)
+            await channel.send(file = discord.File(images+"/"+category+"/"+tmp))
+            await channel.send("↑" + tmp)
+            
     #elif [client in message.mentions]:
     #    subprocess.run("wget "+message.jump_url, shell= True)
     #    subprocess.run("cp *.png *.jpeg images/", shell=True)
