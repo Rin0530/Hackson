@@ -40,35 +40,44 @@ async def on_message(message):
     # メッセージ送信者がBotだった場合は無視する
     if message.author.bot:
         return
-
+    # メッセージを送信したユーザーのディレクトリのパスを保存
     images += "/"+str(message.author.id)
 
     channel = message.channel
 
+    # メッセージがanimalで始まるとき
     if message.content.startswith("animal"):
         
         messageList = message.content.split()
+        # カテゴリの指定が無ければその旨を表示して終了
         if len(messageList) == 1:
             await channel.send("カテゴリを指定してください")
             return
+
+        # カテゴリ内のファイルを取得
         imageList = os.listdir(images+"/"+messageList[1])
 
         numOfImages = len(imageList)-1
+        # 0以上ファイル数以下の乱数を生成
         radomInt = random.randint(0,numOfImages)
 
 
         try:
+            # ランダムでメッセージが送られてきたチャンネルに送信
             await channel.send(file = discord.File(images+"/"+messageList[1]+"/"+imageList[radomInt]))
         except FileNotFoundError as e:
             await channel.send("指定したフォルダは存在しません")
 
+    # メッセージが/uploadで始まるとき
     if message.content.startswith("/upload"):
         messageList = message.content.split()
         try:
+            # メッセージに含まれるファイルの一つ目を取得
             attachment = message.attachments[0]
             await attachment.save(attachment.filename)
             if len(messageList) != 1:
                 messageList.append("")
+            # 指定したカテゴリが無ければ作成
             if not os.path.isdir(messageList[1]):
                 os.makedirs(images+"/"+messageList[1],exist_ok=True)
             # subprocess.run("mv "+attachment.filename+" images/"+messageList[1], shell=True)
@@ -82,11 +91,14 @@ async def on_message(message):
         except IndexError as identifier:
             await channel.send("画像をアップロードしてください")
 
+    # メッセージが/moveから始まるとき
     if message.content.startswith("/move"):
         messageList = message.content.split()
+        # 上層への移動を禁止
         if messageList[2].startswith(".") or messageList[2].startswith("~"):
             await channel.send("移動先にはカテゴリ名を指定してください")
             return
+        # オプションの数が足りない場合
         if len(messageList) <= 2:
             await channel.send("/move 移動させたいファイルのファイル名 移動先")
 
@@ -115,24 +127,32 @@ async def on_message(message):
         # 移動
 
         try:
+            # 拡張子取得
             extension = os.path.splitext(messageList[1])
-            aftername = str(filePath).rsplit("/") #抜けたファイル名
+            #抜けたファイル名
+            aftername = str(filePath).rsplit("/") 
+            # ファイル移動
             shutil.move(str(filePath), decide_filename(messageList[2], extension[1]))
+            # 移動元のディレクトリのファイルを取得
             files = os.listdir(images+"/"+aftername[2])
             file = None
+            # 一番ファイル名に含まれる数字が大きいファイルを検索
             for f in files:
                 if str(len(files)) in str(f):
                     file = f
                     break
             print(str(file))
+            # 検索したファイル名を移動したファイルの名前に書き換え
             os.rename(images+"/"+aftername[2]+"/"+file, images+"/"+aftername[2]+"/"+aftername[3])
 
 
         except shutil.Error as identifier:
             await channel.send("移動先と現在ファイルが存在するディレクトリが同一です。")
 
+    # メッセージがlistで始まる場合
     if message.content.startswith("list"):
         messageList = message.content.split()
+        # 上層の閲覧を禁止
         if len(messageList) != 1:
             if messageList[1].startswith(".") or messageList[1].startswith("~"):
                 await channel.send("閲覧先にはカテゴリ名を指定してください")
@@ -152,7 +172,9 @@ async def on_message(message):
         if not os.path.isdir("./"+images+"/"+category):
             await channel.send("カテゴリないよ？")
             return
+        # カテゴリ内のファイルを取得
         imageList = os.listdir(images+"/"+category)
+        # 取得したファイルをファイル名とともに送信
         for tmp in imageList:
             images = "images"
             images += "/"+str(message.author.id)
